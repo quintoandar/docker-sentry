@@ -13,5 +13,5 @@ if [ -z "${@+x}" ]; then
   fi
 else
   echo "Running $@"
-  exec "$@"
+  exec /entrypoint.sh "$@"
 fi
