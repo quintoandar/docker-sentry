@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "" >> /etc/sentry/sentry.conf.py
+echo "SENTRY_FEATURES['auth:register'] = False" >> /etc/sentry/sentry.conf.py
+
 if [ -z "${@+x}" ]; then
   if [ ! -z "${WORKER+x}" ] && [ "$WORKER" = "true" ]; then
     echo "Starting sentry worker..."
