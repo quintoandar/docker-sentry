@@ -1,18 +1,34 @@
 #!/bin/bash
 
+NEW_RELIC_CONFIG_FILE=newrelic.ini
+newrelic-admin generate-config ${NEW_RELIC_LICENSE_KEY} newrelic.ini
+
 echo "" >> /etc/sentry/sentry.conf.py
 echo "SENTRY_FEATURES['auth:register'] = False" >> /etc/sentry/sentry.conf.py
 
+#This to replicate owner directory on entrypoint file original
+mkdir -p "$SENTRY_FILESTORE_DIR"
+chown -R sentry "$SENTRY_FILESTORE_DIR"
+
+
+function set_newrelic_conf {
+  sed -i "/^app_name/c\app_name = $NEW_RELIC_APP_NAME" newrelic.ini
+}
+
 if [ -z "${@+x}" ]; then
   if [ ! -z "${WORKER+x}" ] && [ "$WORKER" = "true" ]; then
+    set_newrelic_conf
     echo "Starting sentry worker..."
-    exec /entrypoint.sh run worker
+    exec tini gosu sentry newrelic-admin run-program sentry run worker
+
   elif [ ! -z "${CRON+x}" ] && [ "$CRON" = "true" ] ; then
+    set_newrelic_conf
     echo "Starting sentry cron..."
-    exec /entrypoint.sh run cron
+    exec tini gosu sentry newrelic-admin run-program sentry run cron
   else
+    set_newrelic_conf
     echo "Starting sentry webserver..."
-    exec /entrypoint.sh run web
+    exec tini gosu sentry newrelic-admin run-program sentry run web
   fi
 else
   echo "Running $@"
