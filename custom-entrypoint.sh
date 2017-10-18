@@ -6,6 +6,12 @@ newrelic-admin generate-config ${NEW_RELIC_LICENSE_KEY} newrelic.ini
 echo "" >> /etc/sentry/sentry.conf.py
 echo "SENTRY_FEATURES['auth:register'] = False" >> /etc/sentry/sentry.conf.py
 
+sed -i \
+    -e "s~AWS_ACCESS_KEY~$AWS_ACCESS_KEY~g" \
+    -e "s~AWS_SECRET_KEY~$AWS_SECRET_KEY~g" \
+    -e "s~AWS_S3_BUCKET_NAME~$AWS_S3_BUCKET_NAME~g" /etc/sentry/config.yml
+
+
 #This to replicate owner directory on entrypoint file original
 mkdir -p "$SENTRY_FILESTORE_DIR"
 chown -R sentry "$SENTRY_FILESTORE_DIR"
